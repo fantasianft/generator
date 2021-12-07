@@ -3,10 +3,15 @@ import { writeFile } from "fs";
 
 class HashLipsGiffer {
   canvas: any;
+
   ctx: any;
+
   fileName: string;
+
   repeat: any;
+
   quality: number;
+
   delay: number;
 
   gifEncoder: any;

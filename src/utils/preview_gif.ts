@@ -1,21 +1,21 @@
-const basePath = process.cwd();
 import * as fs from "fs";
 import { createCanvas, loadImage } from "canvas";
-const buildDir = `${basePath}/build`;
-const imageDir = `${buildDir}/images`;
-import { format, previewGif } from "../src/config.js";
-const canvas = createCanvas(format.width, format.height);
-const ctx = canvas.getContext("2d");
+import { format, previewGif } from "../config.js";
 
 import { HashLipsGiffer } from "../modules/HashlipsGiffer.js";
+
+const basePath = process.cwd();
+const buildDir = `${basePath}/build`;
+const imageDir = `${buildDir}/images`;
+const canvas = createCanvas(format.width, format.height);
+const ctx = canvas.getContext("2d");
 let hashlipsGiffer = null;
 
-const loadImg = async (_img) => {
-  return new Promise(async (resolve) => {
+const loadImg = async (_img) =>
+  new Promise(async (resolve) => {
     const loadedImage = await loadImage(`${_img}`);
-    resolve({ loadedImage: loadedImage });
+    resolve({ loadedImage });
   });
-};
 
 // read image paths
 const imageList = [];

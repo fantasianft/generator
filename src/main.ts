@@ -1,12 +1,7 @@
-const basePath = process.cwd();
-import NETWORK from "../constants/network.js";
 import * as fs from "fs";
 import sha1 from "sha1";
-import pkg from "canvas";
-const { createCanvas, loadImage } = pkg;
-
-const buildDir = `${basePath}/build`;
-const layersDir = `${basePath}/layers`;
+import { createCanvas, loadImage } from "canvas";
+import NETWORK from "./constants/network";
 import {
   format,
   baseUri,
@@ -21,19 +16,23 @@ import {
   text,
   namePrefix,
   network,
-  solanaMetadata,
   gif,
-} from "../src/config.js";
+} from "./config";
+
+import { HashLipsGiffer } from "./modules/HashlipsGiffer.js";
+
+const basePath = process.cwd();
+
+const buildDir = `${basePath}/build`;
+const layersDir = `${basePath}/layers`;
 
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = format.smoothing;
-var metadataList = [];
-var attributesList = [];
-var dnaList = new Set();
+const metadataList = [];
+let attributesList = [];
+const dnaList = new Set();
 const DNA_DELIMITER = "-";
-
-import { HashLipsGiffer } from "../modules/HashlipsGiffer.js";
 
 let hashlipsGiffer = null;
 
@@ -50,8 +49,8 @@ const buildSetup = () => {
 };
 
 const getRarityWeight = (_str) => {
-  let nameWithoutExtension = _str.slice(0, -4);
-  var nameWithoutWeight = Number(
+  const nameWithoutExtension = _str.slice(0, -4);
+  let nameWithoutWeight = Number(
     nameWithoutExtension.split(rarityDelimiter).pop()
   );
   if (isNaN(nameWithoutWeight)) {
@@ -62,50 +61,45 @@ const getRarityWeight = (_str) => {
 
 const cleanDna = (_str) => {
   const withoutOptions = removeQueryStrings(_str);
-  var dna = Number(withoutOptions.split(":").shift());
+  const dna = Number(withoutOptions.split(":").shift());
   return dna;
 };
 
 const cleanName = (_str) => {
-  let nameWithoutExtension = _str.slice(0, -4);
-  var nameWithoutWeight = nameWithoutExtension.split(rarityDelimiter).shift();
+  const nameWithoutExtension = _str.slice(0, -4);
+  const nameWithoutWeight = nameWithoutExtension.split(rarityDelimiter).shift();
   return nameWithoutWeight;
 };
 
-const getElements = (path) => {
-  return fs
+const getElements = (path) =>
+  fs
     .readdirSync(path)
     .filter((item) => !/(^|\/)\.[^\/\.]/g.test(item))
-    .map((i, index) => {
-      return {
-        id: index,
-        name: cleanName(i),
-        filename: i,
-        path: `${path}${i}`,
-        weight: getRarityWeight(i),
-      };
-    });
-};
+    .map((i, index) => ({
+      id: index,
+      name: cleanName(i),
+      filename: i,
+      path: `${path}${i}`,
+      weight: getRarityWeight(i),
+    }));
 
 const layersSetup = (layersOrder) => {
   const layers = layersOrder.map((layerObj, index) => ({
     id: index,
     elements: getElements(`${layersDir}/${layerObj.name}/`),
     name:
-      layerObj.options?.["displayName"] != undefined
-        ? layerObj.options?.["displayName"]
+      layerObj.options?.displayName != undefined
+        ? layerObj.options?.displayName
         : layerObj.name,
     blend:
-      layerObj.options?.["blend"] != undefined
-        ? layerObj.options?.["blend"]
+      layerObj.options?.blend != undefined
+        ? layerObj.options?.blend
         : "source-over",
     opacity:
-      layerObj.options?.["opacity"] != undefined
-        ? layerObj.options?.["opacity"]
-        : 1,
+      layerObj.options?.opacity != undefined ? layerObj.options?.opacity : 1,
     bypassDNA:
-      layerObj.options?.["bypassDNA"] !== undefined
-        ? layerObj.options?.["bypassDNA"]
+      layerObj.options?.bypassDNA !== undefined
+        ? layerObj.options?.bypassDNA
         : false,
   }));
   return layers;
@@ -119,8 +113,8 @@ const saveImage = (_editionCount) => {
 };
 
 const genColor = () => {
-  let hue = Math.floor(Math.random() * 360);
-  let pastel = `hsl(${hue}, 100%, ${background.brightness})`;
+  const hue = Math.floor(Math.random() * 360);
+  const pastel = `hsl(${hue}, 100%, ${background.brightness})`;
   return pastel;
 };
 
@@ -130,10 +124,10 @@ const drawBackground = () => {
 };
 
 const addMetadata = (_dna, _edition) => {
-  let dateTime = Date.now();
-  let tempMetadata = {
+  const dateTime = Date.now();
+  const tempMetadata = {
     name: `${namePrefix} #${_edition}`,
-    description: description,
+    description,
     image: `${baseUri}/${_edition}.png`,
     dna: sha1(_dna),
     edition: _edition,
@@ -173,19 +167,18 @@ const addMetadata = (_dna, _edition) => {
 };
 
 const addAttributes = (_element) => {
-  let selectedElement = _element.layer.selectedElement;
+  const { selectedElement } = _element.layer;
   attributesList.push({
     trait_type: _element.layer.name,
     value: selectedElement.name,
   });
 };
 
-const loadLayerImg = async (_layer) => {
-  return new Promise(async (resolve) => {
+const loadLayerImg = async (_layer) =>
+  new Promise(async (resolve) => {
     const image = await loadImage(`${_layer.selectedElement.path}`);
     resolve({ layer: _layer, loadedImage: image });
   });
-};
 
 const addText = (_sig, x, y, size) => {
   ctx.fillStyle = text.color;
@@ -217,19 +210,23 @@ const drawElement = (_renderObject, _index, _layersLen) => {
 };
 
 const constructLayerToDna = (_dna = "", _layers = []) => {
-  let mappedDnaToLayers = _layers.map((layer, index) => {
-    let selectedElement = layer.elements.find(
+  const mappedDnaToLayers = _layers.map((layer, index) => {
+    const selectedElement = layer.elements.find(
       (e) => e.id == cleanDna(_dna.split(DNA_DELIMITER)[index])
     );
     return {
       name: layer.name,
       blend: layer.blend,
       opacity: layer.opacity,
-      selectedElement: selectedElement,
+      selectedElement,
     };
   });
   return mappedDnaToLayers;
 };
+
+interface Options {
+  bypassDNA: string;
+}
 
 /**
  * In some cases a DNA string may contain optional query parameters for options
@@ -253,7 +250,8 @@ const filterDNAOptions = (_dna) => {
     }, []);
 
     // CHanged this ->  return options.bypassDNA;
-    return options["bypassDNA"];
+    // @ts-ignore
+    return options.bypassDNA;
   });
 
   return filteredDNA.join(DNA_DELIMITER);
@@ -278,15 +276,15 @@ const isDnaUnique = (_DnaList = new Set(), _dna = "") => {
 };
 
 const createDna = (_layers) => {
-  let randNum = [];
+  const randNum = [];
   _layers.forEach((layer) => {
-    var totalWeight = 0;
+    let totalWeight = 0;
     layer.elements.forEach((element) => {
       totalWeight += element.weight;
     });
     // number between 0 - totalWeight
     let random = Math.floor(Math.random() * totalWeight);
-    for (var i = 0; i < layer.elements.length; i++) {
+    for (let i = 0; i < layer.elements.length; i++) {
       // subtract the current weight from the random weight until we reach a sub zero value.
       random -= layer.elements[i].weight;
       if (random < 0) {
@@ -306,7 +304,7 @@ const writeMetaData = (_data) => {
 };
 
 const saveMetaDataSingleFile = (_editionCount) => {
-  let metadata = metadataList.find((meta) => meta.edition == _editionCount);
+  const metadata = metadataList.find((meta) => meta.edition == _editionCount);
   debugLogs
     ? console.log(
         `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
@@ -319,8 +317,8 @@ const saveMetaDataSingleFile = (_editionCount) => {
 };
 
 function shuffle(array) {
-  let currentIndex = array.length,
-    randomIndex;
+  let currentIndex = array.length;
+  let randomIndex;
   while (currentIndex != 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
@@ -357,10 +355,10 @@ const startCreating = async () => {
     while (
       editionCount <= layerConfigurations[layerConfigIndex].growEditionSizeTo
     ) {
-      let newDna = createDna(layers);
+      const newDna = createDna(layers);
       if (isDnaUnique(dnaList, newDna)) {
-        let results = constructLayerToDna(newDna, layers);
-        let loadedElements = [];
+        const results = constructLayerToDna(newDna, layers);
+        const loadedElements = [];
 
         results.forEach((layer) => {
           loadedElements.push(loadLayerImg(layer));

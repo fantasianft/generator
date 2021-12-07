@@ -1,9 +1,10 @@
-const basePath = process.cwd();
 import * as fs from "fs";
 import { createCanvas, loadImage } from "canvas";
-const buildDir = `${basePath}/build`;
 
-import { preview } from "../src/config";
+import { preview } from "../config";
+
+const basePath = process.cwd();
+const buildDir = `${basePath}/build`;
 
 // read json data
 const rawdata = fs
