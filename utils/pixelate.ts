@@ -4,8 +4,8 @@ import { createCanvas, loadImage } from "canvas";
 const basePath = process.cwd();
 const buildDir = `${basePath}/build/pixel_images`;
 const inputDir = `${basePath}/build/images`;
-import { format, pixelFormat } from "../src/config.js"
-import * as console from "console"
+import { format, pixelFormat } from "../src/config.js";
+import * as console from "console";
 
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");

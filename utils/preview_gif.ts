@@ -3,11 +3,11 @@ import * as fs from "fs";
 import { createCanvas, loadImage } from "canvas";
 const buildDir = `${basePath}/build`;
 const imageDir = `${buildDir}/images`;
-import { format, preview_gif } from "../src/config.js";
+import { format, previewGif } from "../src/config.js";
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
 
-import {HashLipsGiffer} from "../modules/HashlipsGiffer.js"
+import { HashLipsGiffer } from "../modules/HashlipsGiffer.js";
 let hashlipsGiffer = null;
 
 const loadImg = async (_img) => {
@@ -26,7 +26,7 @@ const rawdata = fs.readdirSync(imageDir).forEach((file) => {
 const saveProjectPreviewGIF = async (_data) => {
   // Extract from preview config
   const { numberOfImages, order, repeat, quality, delay, imageName } =
-    preview_gif;
+    previewGif;
   // Extract from format config
   const { width, height } = format;
   // Prepare canvas
@@ -67,8 +67,8 @@ const saveProjectPreviewGIF = async (_data) => {
       }
 
       // Reduce the size of the array of Images to the desired amount
-      if (numberOfImages > 0) renderObjectArray = renderObjectArray.slice(0, numberOfImages);
-      
+      if (numberOfImages > 0)
+        renderObjectArray = renderObjectArray.slice(0, numberOfImages);
 
       renderObjectArray.forEach((renderObject, index) => {
         ctx.globalAlpha = 1;

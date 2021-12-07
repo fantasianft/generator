@@ -6,7 +6,9 @@ const buildDir = `${basePath}/build`;
 import { preview } from "../src/config";
 
 // read json data
-const rawdata = (fs.readFileSync(`${basePath}/build/json/_metadata.json`).toString());
+const rawdata = fs
+  .readFileSync(`${basePath}/build/json/_metadata.json`)
+  .toString();
 const metadataList = JSON.parse(rawdata);
 
 const saveProjectPreviewImage = async (_data) => {

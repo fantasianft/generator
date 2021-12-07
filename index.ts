@@ -1,4 +1,4 @@
-import {startCreating, buildSetup} from "./src/main.js";
+import { startCreating, buildSetup } from "./src/main.js";
 
 (() => {
   buildSetup();

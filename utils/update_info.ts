@@ -1,5 +1,5 @@
 const basePath = process.cwd();
-import {NETWORK} from "../constants/network.js"
+import NETWORK from "../constants/network.js";
 import * as fs from "fs";
 
 import {
@@ -8,10 +8,12 @@ import {
   namePrefix,
   network,
   solanaMetadata,
-} from "../src/config.js"
+} from "../src/config.js";
 
 // read json data
-let rawdata = (fs.readFileSync(`${basePath}/build/json/_metadata.json`)).toString();
+let rawdata = fs
+  .readFileSync(`${basePath}/build/json/_metadata.json`)
+  .toString();
 let data = JSON.parse(rawdata);
 
 data.forEach((item) => {

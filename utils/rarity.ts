@@ -2,12 +2,14 @@ const basePath = process.cwd();
 import * as fs from "fs";
 const layersDir = `${basePath}/layers`;
 
-import  { layerConfigurations } from "../src/config.js"
+import { layerConfigurations } from "../src/config.js";
 
-import { getElements } from "../src/main.js"
+import { getElements } from "../src/main.js";
 
 // read json data
-let rawdata = (fs.readFileSync(`${basePath}/build/json/_metadata.json`)).toString();
+let rawdata = fs
+  .readFileSync(`${basePath}/build/json/_metadata.json`)
+  .toString();
 let data = JSON.parse(rawdata);
 let editionSize = data.length;
 
@@ -64,12 +66,15 @@ data.forEach((element) => {
 for (var layer in rarityData) {
   for (var attribute in rarityData[layer]) {
     // get chance
-    let chance =
-      ((rarityData[layer][attribute].occurrence / editionSize) * 100).toFixed(2);
+    let chance = (
+      (rarityData[layer][attribute].occurrence / editionSize) *
+      100
+    ).toFixed(2);
 
     // show two decimal places in percent
-    rarityData[layer][attribute].occurrence =
-      `${rarityData[layer][attribute].occurrence} in ${editionSize} editions (${chance} %)`;
+    rarityData[layer][
+      attribute
+    ].occurrence = `${rarityData[layer][attribute].occurrence} in ${editionSize} editions (${chance} %)`;
   }
 }
 

@@ -1,5 +1,5 @@
-import * as GifEncoder from "gif-encoder-2"
-import {writeFile} from "fs";
+import * as GifEncoder from "gif-encoder-2";
+import { writeFile } from "fs";
 
 class HashLipsGiffer {
   canvas: any;
@@ -10,7 +10,6 @@ class HashLipsGiffer {
   delay: number;
 
   gifEncoder: any;
-
 
   constructor(_canvas, _ctx, _fileName, _repeat, _quality, _delay) {
     this.canvas = _canvas;
