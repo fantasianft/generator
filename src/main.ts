@@ -401,9 +401,9 @@ const startCreating = async () => {
           addMetadata(newDna, abstractedIndexes[0]);
           saveMetaDataSingleFile(abstractedIndexes[0]);
           console.log(
-            `Created edition: ${abstractedIndexes[0]}, with DNA: ${sha1(
-              newDna
-            )}`
+            `Created edition: ${abstractedIndexes[0]}, with DNA: ${
+              metadataList[metadataList.length - 1].dna
+            }`
           );
         });
         dnaList.add(filterDNAOptions(newDna));
