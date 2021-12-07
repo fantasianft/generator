@@ -1,11 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createCanvas, loadImage } from "canvas";
+import * as console from "console";
+import { format, pixelFormat } from "../config.js";
+
 const basePath = process.cwd();
 const buildDir = `${basePath}/build/pixel_images`;
 const inputDir = `${basePath}/build/images`;
-import { format, pixelFormat } from "../src/config.js";
-import * as console from "console";
 
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
@@ -22,33 +23,30 @@ const getImages = (_dir) => {
     return fs
       .readdirSync(_dir)
       .filter((item) => {
-        let extension = path.extname(`${_dir}${item}`);
+        const extension = path.extname(`${_dir}${item}`);
         if (extension == ".png" || extension == ".jpg") {
           return item;
         }
       })
-      .map((i) => {
-        return {
-          filename: i,
-          path: `${_dir}/${i}`,
-        };
-      });
+      .map((i) => ({
+        filename: i,
+        path: `${_dir}/${i}`,
+      }));
   } catch {
     return null;
   }
 };
 
-const loadImgData = async (_imgObject) => {
-  return new Promise(async (resolve) => {
+const loadImgData = async (_imgObject) =>
+  new Promise(async (resolve) => {
     const image = await loadImage(`${_imgObject.path}`);
     resolve({ imgObject: _imgObject, loadedImage: image });
   });
-};
 
 const draw = (_imgObject) => {
-  let size = pixelFormat.ratio;
-  let w = canvas.width * size;
-  let h = canvas.height * size;
+  const size = pixelFormat.ratio;
+  const w = canvas.width * size;
+  const h = canvas.height * size;
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(_imgObject.loadedImage, 0, 0, w, h);
   ctx.drawImage(canvas, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
@@ -67,7 +65,7 @@ const startCreating = async () => {
     console.log("Please generate collection first.");
     return;
   }
-  let loadedImageObjects = [];
+  const loadedImageObjects = [];
   images.forEach((imgObject) => {
     loadedImageObjects.push(loadImgData(imgObject));
   });

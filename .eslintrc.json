@@ -3,14 +3,16 @@
     "es2021": true,
     "node": true
   },
-  "extends": ["airbnb-base", "prettier"],
+  "extends": ["airbnb-base", "airbnb-typescript/base", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["only-warn", "@typescript-eslint", "prettier"],
+  "ignorePatterns": ["build/", "dist/"],
   "rules": {
-    "prettier/prettier": "error"
+    "prettier/prettier": "warn"
   }
 }

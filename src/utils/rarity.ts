@@ -1,31 +1,32 @@
-const basePath = process.cwd();
 import * as fs from "fs";
+
+import { layerConfigurations } from "../config.js";
+
+import { getElements } from "../main.js";
+
+const basePath = process.cwd();
 const layersDir = `${basePath}/layers`;
 
-import { layerConfigurations } from "../src/config.js";
-
-import { getElements } from "../src/main.js";
-
 // read json data
-let rawdata = fs
+const rawdata = fs
   .readFileSync(`${basePath}/build/json/_metadata.json`)
   .toString();
-let data = JSON.parse(rawdata);
-let editionSize = data.length;
+const data = JSON.parse(rawdata);
+const editionSize = data.length;
 
-let rarityData = [];
+const rarityData = [];
 
 // intialize layers to chart
 layerConfigurations.forEach((config) => {
-  let layers = config.layersOrder;
+  const layers = config.layersOrder;
 
   layers.forEach((layer) => {
     // get elements for each layer
-    let elementsForLayer = [];
-    let elements = getElements(`${layersDir}/${layer.name}/`);
+    const elementsForLayer = [];
+    const elements = getElements(`${layersDir}/${layer.name}/`);
     elements.forEach((element) => {
       // just get name and weight for each element
-      let rarityDataElement = {
+      const rarityDataElement = {
         trait: element.name,
         weight: element.weight.toFixed(0),
         occurrence: 0, // initialize at 0
@@ -33,9 +34,11 @@ layerConfigurations.forEach((config) => {
       elementsForLayer.push(rarityDataElement);
     });
 
-    let layerName: string =
-      layer["options"]["displayName"] != undefined
-        ? layer["options"]["displayName"]
+    const layerName: string =
+      // @ts-ignore
+      layer.options.displayName !== undefined
+        ? // @ts-ignore
+          layer.options.displayName
         : layer.name;
     // don't include duplicate layers
     if (!rarityData.includes(layer.name)) {
@@ -47,12 +50,12 @@ layerConfigurations.forEach((config) => {
 
 // fill up rarity chart with occurrences from metadata
 data.forEach((element) => {
-  let attributes = element.attributes;
+  const { attributes } = element;
   attributes.forEach((attribute) => {
-    let traitType = attribute.trait_type;
-    let value = attribute.value;
+    const traitType = attribute.trait_type;
+    const { value } = attribute;
 
-    let rarityDataTraits = rarityData[traitType];
+    const rarityDataTraits = rarityData[traitType];
     rarityDataTraits.forEach((rarityDataTrait) => {
       if (rarityDataTrait.trait == value) {
         // keep track of occurrences
@@ -64,9 +67,9 @@ data.forEach((element) => {
 
 // convert occurrences to occurence string
 for (var layer in rarityData) {
-  for (var attribute in rarityData[layer]) {
+  for (const attribute in rarityData[layer]) {
     // get chance
-    let chance = (
+    const chance = (
       (rarityData[layer][attribute].occurrence / editionSize) *
       100
     ).toFixed(2);
@@ -81,7 +84,7 @@ for (var layer in rarityData) {
 // print out rarity data
 for (var layer in rarityData) {
   console.log(`Trait type: ${layer}`);
-  for (var trait in rarityData[layer]) {
+  for (const trait in rarityData[layer]) {
     console.log(rarityData[layer][trait]);
   }
   console.log();

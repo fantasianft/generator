@@ -1,6 +1,5 @@
-const basePath = process.cwd();
-import NETWORK from "../constants/network.js";
 import * as fs from "fs";
+import NETWORK from "../constants/network.js";
 
 import {
   baseUri,
@@ -8,13 +7,15 @@ import {
   namePrefix,
   network,
   solanaMetadata,
-} from "../src/config.js";
+} from "../config.js";
+
+const basePath = process.cwd();
 
 // read json data
-let rawdata = fs
+const rawdata = fs
   .readFileSync(`${basePath}/build/json/_metadata.json`)
   .toString();
-let data = JSON.parse(rawdata);
+const data = JSON.parse(rawdata);
 
 data.forEach((item) => {
   if (network == NETWORK.sol) {

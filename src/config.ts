@@ -1,4 +1,4 @@
-import NETWORK from "../constants/network.js";
+import NETWORK from "./constants/network";
 
 const network: string = NETWORK.eth;
 
