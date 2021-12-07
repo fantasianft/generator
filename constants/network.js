@@ -3,4 +3,4 @@ const NETWORK = {
   sol: "sol",
 };
 
-export { NETWORK };
+export default NETWORK;

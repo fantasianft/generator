@@ -1,12 +1,11 @@
-// import {MODE} from "../constants/blend_mode.js"
-import {NETWORK} from "../constants/network.js"
+import NETWORK from "../constants/network.js";
 
-const network = NETWORK.eth;
+const network: string = NETWORK.eth;
 
 // General metadata for Ethereum
-const namePrefix = "Your Collection";
-const description = "Remember to replace this description";
-const baseUri = "ipfs://NewUriToReplace";
+const namePrefix: string = "Your Collection";
+const description: string = "Remember to replace this description";
+const baseUri: string = "ipfs://NewUriToReplace";
 
 const solanaMetadata = {
   symbol: "YC",
@@ -42,9 +41,9 @@ const layerConfigurations = [
   },
 ];
 
-const shuffleLayerConfigurations = false;
+const shuffleLayerConfigurations: boolean = false;
 
-const debugLogs = false;
+const debugLogs: boolean = false;
 
 const format = {
   width: 1000,
@@ -96,7 +95,7 @@ const preview = {
   imageName: "preview.png",
 };
 
-const preview_gif = {
+const previewGif = {
   numberOfImages: 5,
   order: "ASC", // ASC, DESC, MIXED
   repeat: 0,
@@ -105,7 +104,8 @@ const preview_gif = {
   imageName: "preview.gif",
 };
 
-export {  format,
+export {
+  format,
   baseUri,
   description,
   background,
@@ -122,4 +122,5 @@ export {  format,
   network,
   solanaMetadata,
   gif,
-  preview_gif,}
+  previewGif,
+};

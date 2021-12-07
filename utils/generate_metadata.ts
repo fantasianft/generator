@@ -6,12 +6,9 @@ const basePath = process.cwd();
 const buildDir = `${basePath}/build/json`;
 const inputDir = `${basePath}/build/images`;
 
-import {   format,
-  namePrefix,
-  description,
-  baseUri, } from "../src/config.js";
+import { format, namePrefix, description, baseUri } from "../src/config.js";
 
-import * as console from "console"
+import * as console from "console";
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
 const metadataList = [];

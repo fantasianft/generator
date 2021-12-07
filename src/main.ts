@@ -1,13 +1,14 @@
 const basePath = process.cwd();
-import { NETWORK } from "../constants/network.js";
+import NETWORK from "../constants/network.js";
 import * as fs from "fs";
 import sha1 from "sha1";
-import pkg from 'canvas';
+import pkg from "canvas";
 const { createCanvas, loadImage } = pkg;
 
 const buildDir = `${basePath}/build`;
 const layersDir = `${basePath}/layers`;
-import {  format,
+import {
+  format,
   baseUri,
   description,
   background,
@@ -21,8 +22,8 @@ import {  format,
   namePrefix,
   network,
   solanaMetadata,
-  gif} from "../src/config.js"
-
+  gif,
+} from "../src/config.js";
 
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
@@ -32,7 +33,7 @@ var attributesList = [];
 var dnaList = new Set();
 const DNA_DELIMITER = "-";
 
-import {HashLipsGiffer} from "../modules/HashlipsGiffer.js"
+import { HashLipsGiffer } from "../modules/HashlipsGiffer.js";
 
 let hashlipsGiffer = null;
 
@@ -250,7 +251,7 @@ const filterDNAOptions = (_dna) => {
       const keyPairs = setting.split("=");
       return { ...r, [keyPairs[0]]: keyPairs[1] };
     }, []);
-    
+
     // CHanged this ->  return options.bypassDNA;
     return options["bypassDNA"];
   });
@@ -427,4 +428,4 @@ const startCreating = async () => {
 };
 
 // module.exports = { startCreating, buildSetup, getElements };
-export {startCreating, buildSetup, getElements};
+export { startCreating, buildSetup, getElements };

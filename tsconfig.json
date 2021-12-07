@@ -1,11 +1,11 @@
 {
-    "compileOnSave": true,
-    "compilerOptions": {
-      "outDir": "./dist",
-      "allowJs": true,
-      "target": "es2021",
-      "allowSyntheticDefaultImports": true,
-      "moduleResolution": "node"
-    },
-    "include": ["./src", "index.ts", "./utils", "./constants"]
-  }
+  "compileOnSave": true,
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "es2021",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node"
+  },
+  "include": ["./src", "index.ts", "./utils", "./constants"]
+}
