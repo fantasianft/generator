@@ -10,6 +10,7 @@
     "start": "yarn run build && yarn run generate",
     "watch": "tsc -b -w",
     "build": "tsc",
+    "upng": "yarn run build && node dist/utils/upng.js",
     "generate": "node dist/index.js",
     "rarity": "node dist/utils/rarity.js",
     "preview": "node dist/utils/preview.js",
@@ -19,12 +20,14 @@
     "generate_metadata": "node dist/utils/generate_metadata.js"
   },
   "dependencies": {
+    "@types/upng-js": "^2.1.2",
     "canvas": "^2.8.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "gif-encoder-2": "^1.0.5",
     "prettier": "^2.5.1",
-    "sha1": "^1.1.1"
+    "sha1": "^1.1.1",
+    "upng-js": "^2.1.0"
   },
   "devDependencies": {
     "@types/gif-encoder": "^0.7.1",
