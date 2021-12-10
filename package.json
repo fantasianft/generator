@@ -37,7 +37,7 @@
     "eslint-config-airbnb-typescript": "^16.1.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-only-warn": "^1.0.3",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.3"
   },
   "resolutions": {
     "ansi-regex": "^5.0.1"
