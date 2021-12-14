@@ -108,7 +108,7 @@ const layersSetup = (layersOrder) => {
   return layers;
 };
 
-const saveImage = (_editionCount, _buffers?: ArrayBuffer[]) => {
+const saveImage = (_editionCount: number, _buffers?: ArrayBuffer[]) => {
   if (_buffers === undefined) {
     fs.writeFileSync(
       `${buildDir}/images/${_editionCount}.png`,
@@ -237,7 +237,6 @@ const drawElement = (_renderObject, _index, _layersLen, frameNum?: number) => {
       format.height
     );
   }
-  // addAttributes(_renderObject);
 };
 
 const constructLayerToDna = (_dna = "", _layers = []) => {
