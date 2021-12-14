@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import sha1 from "sha1";
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, Image } from "canvas";
+import UPNG from "upng-js";
 import NETWORK from "./constants/network";
 import {
   format,
@@ -28,6 +29,8 @@ const layersDir = `${basePath}/layers`;
 
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
+// store the maxium number of frames
+let frameCount = 0;
 ctx.imageSmoothingEnabled = format.smoothing;
 const metadataList = [];
 let attributesList = [];
@@ -105,11 +108,19 @@ const layersSetup = (layersOrder) => {
   return layers;
 };
 
-const saveImage = (_editionCount) => {
-  fs.writeFileSync(
-    `${buildDir}/images/${_editionCount}.png`,
-    canvas.toBuffer("image/png")
-  );
+const saveImage = (_editionCount: number, _buffers?: ArrayBuffer[]) => {
+  if (_buffers === undefined) {
+    fs.writeFileSync(
+      `${buildDir}/images/${_editionCount}.png`,
+      canvas.toBuffer("image/png")
+    );
+  } else {
+    const png = UPNG.encode(_buffers, format.width, format.height, 0, new Array(frameCount).fill(0));
+    fs.writeFileSync(
+      `${buildDir}/images/${_editionCount}.png`,
+      Buffer.from(png)
+    );
+  }
 };
 
 const genColor = () => {
@@ -176,37 +187,56 @@ const addAttributes = (_element) => {
 
 const loadLayerImg = async (_layer) =>
   new Promise(async (resolve) => {
-    const image = await loadImage(`${_layer.selectedElement.path}`);
+    // load image using upng-js to support animated png
+    const img = await UPNG.decode(
+      fs.readFileSync(`${_layer.selectedElement.path}`)
+    );
+    const image: Image[] = [];
+    // convert img to arraybuffers without MIME type
+    const arrayBuffers = UPNG.toRGBA8(img);
+    for (let frame of arrayBuffers) {
+      const frameBuffer = Buffer.from(UPNG.encode([frame], img.width, img.height, 0));
+      const frameImage = await loadImage(frameBuffer);
+      image.push(frameImage);
+    }
+    // decide frameCount
+    frameCount = Math.max(frameCount, image.length);
+    // const image = await loadImage(`${_layer.selectedElement.path}`);
     resolve({ layer: _layer, loadedImage: image });
   });
 
-const addText = (_sig, x, y, size) => {
-  ctx.fillStyle = text.color;
-  ctx.font = `${text.weight} ${size}pt ${text.family}`;
-  ctx.textBaseline = <CanvasTextBaseline>text.baseline;
-  ctx.textAlign = <CanvasTextAlign>text.align;
-  ctx.fillText(_sig, x, y);
-};
-
-const drawElement = (_renderObject, _index, _layersLen) => {
+  const addText = (_sig, x, y, size) => {
+    ctx.fillStyle = text.color;
+    ctx.font = `${text.weight} ${size}pt ${text.family}`;
+    ctx.textBaseline = <CanvasTextBaseline>text.baseline;
+    ctx.textAlign = <CanvasTextAlign>text.align;
+    ctx.fillText(_sig, x, y);
+  };
+  
+// use upng-js to load the apng file
+const drawElement = (_renderObject, _index, _layersLen, frameNum?: number) => {
   ctx.globalAlpha = _renderObject.layer.opacity;
   ctx.globalCompositeOperation = _renderObject.layer.blend;
-  text.only
-    ? addText(
-        `${_renderObject.layer.name}${text.spacer}${_renderObject.layer.selectedElement.name}`,
-        text.xGap,
-        text.yGap * (_index + 1),
-        text.size
-      )
-    : ctx.drawImage(
-        _renderObject.loadedImage,
-        0,
-        0,
-        format.width,
-        format.height
-      );
+  if (text.only) {
+    addText(
+      `${_renderObject.layer.name}${text.spacer}${_renderObject.layer.selectedElement.name}`,
+      text.xGap,
+      text.yGap * (_index + 1),
+      text.size
+    );
+  } else {
+    // handle frame count overflow
+    if (frameNum > _renderObject.loadedImage.length - 1)
+      frameNum = _renderObject.loadedImage.length - 1;
 
-  addAttributes(_renderObject);
+    ctx.drawImage(
+      _renderObject.loadedImage[frameNum],
+      0,
+      0,
+      format.width,
+      format.height
+    );
+  }
 };
 
 const constructLayerToDna = (_dna = "", _layers = []) => {
@@ -289,8 +319,7 @@ const createDna = (_layers) => {
       random -= layer.elements[i].weight;
       if (random < 0) {
         return randNum.push(
-          `${layer.elements[i].id}:${layer.elements[i].filename}${
-            layer.bypassDNA ? "?bypassDNA=true" : ""
+          `${layer.elements[i].id}:${layer.elements[i].filename}${layer.bypassDNA ? "?bypassDNA=true" : ""
           }`
         );
       }
@@ -307,8 +336,8 @@ const saveMetaDataSingleFile = (_editionCount) => {
   const metadata = metadataList.find((meta) => meta.edition == _editionCount);
   debugLogs
     ? console.log(
-        `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
-      )
+      `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
+    )
     : null;
   fs.writeFileSync(
     `${buildDir}/json/${_editionCount}.json`,
@@ -359,53 +388,65 @@ const startCreating = async () => {
       if (isDnaUnique(dnaList, newDna)) {
         const results = constructLayerToDna(newDna, layers);
         const loadedElements = [];
-
         results.forEach((layer) => {
           loadedElements.push(loadLayerImg(layer));
+          // loadedElements.push(loadLayerImgData(layer));
         });
 
-        await Promise.all(loadedElements).then((renderObjectArray) => {
+        // buffers contains all frames of the animation
+        let buffers: ArrayBuffer[] = [];
+
+        if (gif.export) {
+          hashlipsGiffer = new HashLipsGiffer(
+            canvas,
+            ctx,
+            `${buildDir}/gifs/${abstractedIndexes[0]}.gif`,
+            gif.repeat,
+            gif.quality,
+            gif.delay
+          );
+          hashlipsGiffer.start();
+        }
+        if (background.generate) {
+          drawBackground();
+        }
+
+        if (gif.export) {
+          hashlipsGiffer.stop();
+        }
+
+        debugLogs
+          ? console.log("Editions left to create: ", abstractedIndexes)
+          : null;
+        // wait until all render objects has been loaded
+        const renderObjectArray = await Promise.all(loadedElements);
+        // for each frame render all the layers
+        for (let i = 0; i < frameCount; i++) {
           debugLogs ? console.log("Clearing canvas") : null;
           ctx.clearRect(0, 0, format.width, format.height);
-          if (gif.export) {
-            hashlipsGiffer = new HashLipsGiffer(
-              canvas,
-              ctx,
-              `${buildDir}/gifs/${abstractedIndexes[0]}.gif`,
-              gif.repeat,
-              gif.quality,
-              gif.delay
-            );
-            hashlipsGiffer.start();
-          }
-          if (background.generate) {
-            drawBackground();
-          }
+          // renders each object
           renderObjectArray.forEach((renderObject, index) => {
             drawElement(
               renderObject,
               index,
-              layerConfigurations[layerConfigIndex].layersOrder.length
+              layerConfigurations[layerConfigIndex].layersOrder.length,
+              i
             );
-            if (gif.export) {
-              hashlipsGiffer.add();
-            }
           });
-          if (gif.export) {
-            hashlipsGiffer.stop();
-          }
-          debugLogs
-            ? console.log("Editions left to create: ", abstractedIndexes)
-            : null;
-          saveImage(abstractedIndexes[0]);
-          addMetadata(newDna, abstractedIndexes[0]);
-          saveMetaDataSingleFile(abstractedIndexes[0]);
-          console.log(
-            `Created edition: ${abstractedIndexes[0]}, with DNA: ${
-              metadataList[metadataList.length - 1].dna
-            }`
-          );
+          // push current rendered frame into buffer
+          buffers.push(ctx.getImageData(0, 0, format.width, format.height).data.buffer);
+        }
+        renderObjectArray.forEach((renderObject, index) => {
+          addAttributes(renderObject);
         });
+        saveImage(abstractedIndexes[0], buffers);
+        addMetadata(newDna, abstractedIndexes[0]);
+        saveMetaDataSingleFile(abstractedIndexes[0]);
+        console.log(
+          `Created edition: ${abstractedIndexes[0]}, with DNA: ${metadataList[metadataList.length - 1].dna
+          }`
+        );
+
         dnaList.add(filterDNAOptions(newDna));
         editionCount++;
         abstractedIndexes.shift();
