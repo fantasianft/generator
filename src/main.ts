@@ -56,7 +56,7 @@ const getRarityWeight = (_str) => {
   let nameWithoutWeight = Number(
     nameWithoutExtension.split(rarityDelimiter).pop()
   );
-  if (isNaN(nameWithoutWeight)) {
+  if (Number.isNaN(nameWithoutWeight)) {
     nameWithoutWeight = 1;
   }
   return nameWithoutWeight;
@@ -91,15 +91,15 @@ const layersSetup = (layersOrder) => {
     id: index,
     elements: getElements(`${layersDir}/${layerObj.name}/`),
     name:
-      layerObj.options?.displayName != undefined
+      layerObj.options?.displayName !== undefined
         ? layerObj.options?.displayName
         : layerObj.name,
     blend:
-      layerObj.options?.blend != undefined
+      layerObj.options?.blend !== undefined
         ? layerObj.options?.blend
         : "source-over",
     opacity:
-      layerObj.options?.opacity != undefined ? layerObj.options?.opacity : 1,
+      layerObj.options?.opacity !== undefined ? layerObj.options?.opacity : 1,
     bypassDNA:
       layerObj.options?.bypassDNA !== undefined
         ? layerObj.options?.bypassDNA
@@ -115,7 +115,13 @@ const saveImage = (_editionCount: number, _buffers?: ArrayBuffer[]) => {
       canvas.toBuffer("image/png")
     );
   } else {
-    const png = UPNG.encode(_buffers, format.width, format.height, 0, new Array(frameCount).fill(0));
+    const png = UPNG.encode(
+      _buffers,
+      format.width,
+      format.height,
+      0,
+      new Array(frameCount).fill(0)
+    );
     fs.writeFileSync(
       `${buildDir}/images/${_editionCount}.png`,
       Buffer.from(png)
@@ -139,7 +145,7 @@ const addMetadata = (_dna, _edition) => {
   const tempMetadata = {
     name: `${namePrefix} #${_edition}`,
     description,
-    image: `${baseUri}/${_edition}.png`,
+    file_url: `${baseUri}/${_edition}.png`,
     dna: sha1(_dna),
     edition: _edition,
     date: dateTime,
@@ -147,42 +153,20 @@ const addMetadata = (_dna, _edition) => {
     attributes: attributesList,
   };
 
-  // if (network == NETWORK.sol) {
-  //   tempMetadata = {
-  //     //Added metadata for solana
-  //     name: tempMetadata.name,
-  //     symbol: solanaMetadata.symbol,
-  //     description: tempMetadata.description,
-  //     //Added metadata for solana
-  //     seller_fee_basis_points: solanaMetadata.seller_fee_basis_points,
-  //     image: `image.png`,
-  //     //Added metadata for solana
-  //     external_url: solanaMetadata.external_url,
-  //     edition: _edition,
-  //     ...extraMetadata,
-  //     attributes: tempMetadata.attributes,
-  //     properties: {
-  //       files: [
-  //         {
-  //           uri: "image.png",
-  //           type: "image/png",
-  //         },
-  //       ],
-  //       category: "image",
-  //       creators: solanaMetadata.creators,
-  //     },
-  //   };
-  // }
   metadataList.push(tempMetadata);
   attributesList = [];
 };
 
 const addAttributes = (_element) => {
-  const { selectedElement } = _element.layer;
-  attributesList.push({
-    trait_type: _element.layer.name,
-    value: selectedElement.name,
-  });
+  const {
+    selectedElement: { name },
+  } = _element.layer;
+  if (name.trim().toLowerCase() !== "blank") {
+    attributesList.push({
+      trait_type: _element.layer.name,
+      value: name,
+    });
+  }
 };
 
 const loadLayerImg = async (_layer) =>
@@ -194,8 +178,10 @@ const loadLayerImg = async (_layer) =>
     const image: Image[] = [];
     // convert img to arraybuffers without MIME type
     const arrayBuffers = UPNG.toRGBA8(img);
-    for (let frame of arrayBuffers) {
-      const frameBuffer = Buffer.from(UPNG.encode([frame], img.width, img.height, 0));
+    for (const frame of arrayBuffers) {
+      const frameBuffer = Buffer.from(
+        UPNG.encode([frame], img.width, img.height, 0)
+      );
       const frameImage = await loadImage(frameBuffer);
       image.push(frameImage);
     }
@@ -205,14 +191,14 @@ const loadLayerImg = async (_layer) =>
     resolve({ layer: _layer, loadedImage: image });
   });
 
-  const addText = (_sig, x, y, size) => {
-    ctx.fillStyle = text.color;
-    ctx.font = `${text.weight} ${size}pt ${text.family}`;
-    ctx.textBaseline = <CanvasTextBaseline>text.baseline;
-    ctx.textAlign = <CanvasTextAlign>text.align;
-    ctx.fillText(_sig, x, y);
-  };
-  
+const addText = (_sig, x, y, size) => {
+  ctx.fillStyle = text.color;
+  ctx.font = `${text.weight} ${size}pt ${text.family}`;
+  ctx.textBaseline = <CanvasTextBaseline>text.baseline;
+  ctx.textAlign = <CanvasTextAlign>text.align;
+  ctx.fillText(_sig, x, y);
+};
+
 // use upng-js to load the apng file
 const drawElement = (_renderObject, _index, _layersLen, frameNum?: number) => {
   ctx.globalAlpha = _renderObject.layer.opacity;
@@ -242,7 +228,7 @@ const drawElement = (_renderObject, _index, _layersLen, frameNum?: number) => {
 const constructLayerToDna = (_dna = "", _layers = []) => {
   const mappedDnaToLayers = _layers.map((layer, index) => {
     const selectedElement = layer.elements.find(
-      (e) => e.id == cleanDna(_dna.split(DNA_DELIMITER)[index])
+      (e) => e.id === cleanDna(_dna.split(DNA_DELIMITER)[index])
     );
     return {
       name: layer.name,
@@ -319,7 +305,8 @@ const createDna = (_layers) => {
       random -= layer.elements[i].weight;
       if (random < 0) {
         return randNum.push(
-          `${layer.elements[i].id}:${layer.elements[i].filename}${layer.bypassDNA ? "?bypassDNA=true" : ""
+          `${layer.elements[i].id}:${layer.elements[i].filename}${
+            layer.bypassDNA ? "?bypassDNA=true" : ""
           }`
         );
       }
@@ -336,8 +323,8 @@ const saveMetaDataSingleFile = (_editionCount) => {
   const metadata = metadataList.find((meta) => meta.edition == _editionCount);
   debugLogs
     ? console.log(
-      `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
-    )
+        `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
+      )
     : null;
   fs.writeFileSync(
     `${buildDir}/json/${_editionCount}.json`,
@@ -434,7 +421,9 @@ const startCreating = async () => {
             );
           });
           // push current rendered frame into buffer
-          buffers.push(ctx.getImageData(0, 0, format.width, format.height).data.buffer);
+          buffers.push(
+            ctx.getImageData(0, 0, format.width, format.height).data.buffer
+          );
         }
         renderObjectArray.forEach((renderObject, index) => {
           addAttributes(renderObject);
@@ -443,7 +432,8 @@ const startCreating = async () => {
         addMetadata(newDna, abstractedIndexes[0]);
         saveMetaDataSingleFile(abstractedIndexes[0]);
         console.log(
-          `Created edition: ${abstractedIndexes[0]}, with DNA: ${metadataList[metadataList.length - 1].dna
+          `Created edition: ${abstractedIndexes[0]}, with DNA: ${
+            metadataList[metadataList.length - 1].dna
           }`
         );
 
