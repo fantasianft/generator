@@ -68,7 +68,7 @@ const cleanDna = (_str) => {
   return dna;
 };
 
-const cleanName = (_str) => {
+export const cleanName = (_str) => {
   const nameWithoutExtension = _str.slice(0, -4);
   const nameWithoutWeight = nameWithoutExtension.split(rarityDelimiter).shift();
   return nameWithoutWeight;
