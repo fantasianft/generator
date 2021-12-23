@@ -20,6 +20,10 @@ export default class DropdownList extends Component<{}, any> {
       });
   }
 
+  handleChange = (event: any) => {
+    console.log(event);
+  }
+
   render() {
     return (
       <div>
@@ -27,11 +31,10 @@ export default class DropdownList extends Component<{}, any> {
         Object.keys(this.state.dropdowns).length > 0 ? (
           Object.keys(this.state.dropdowns).map(
             (name: string, index: number) => (
-              console.log(index),
               (
                 <div key={index}>
                   {name}
-                  <Form.Select key={index}>
+                  <Form.Select key={index} onChange={this.handleChange}>
                     <option value="Random">Random</option>
                     {this.state.dropdowns[name].map(
                       (file: any, index: number) => (
@@ -40,17 +43,6 @@ export default class DropdownList extends Component<{}, any> {
                         </option>
                       )
                     )}
-                    {/* {this.state.dropdowns[name].forEach(
-                    (file: any, index: number) => (
-                      <p>{file.name}</p>
-                    )
-                  )} */}
-                    {/* 
-                  {this.state.dropdowns[name].map(
-                    (name: string, index: number) => (
-                      <option>{name}</option>
-                    )
-                  )} */}
                   </Form.Select>
                 </div>
               )
