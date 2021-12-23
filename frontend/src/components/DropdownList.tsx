@@ -1,8 +1,40 @@
-import React, { Component } from "react";
+import { Component, useContext, useEffect } from "react";
 import axios from "axios";
 import { Form } from "react-bootstrap";
+import { Context } from "../Store";
+
+interface ISelectComponent {
+  index: number;
+  options: any;
+}
+
+const SelectComponent = ({ index, options }: ISelectComponent) => {
+  const [state, setState] = useContext(Context);
+
+  const handleChange = (event: any) => {
+    setState({ selectedLayers: [...state.selectedLayers, event.target.value] });
+  };
+
+  useEffect(() => {
+    // Console log whenever the state changes
+    console.log(state);
+  });
+
+  return (
+    <Form.Select key={index} onChange={handleChange}>
+      <option value="Random">Random</option>
+      {options.map((file: any, index: number) => (
+        <option key={file.path} value={file.path}>
+          {file.name}
+        </option>
+      ))}
+    </Form.Select>
+  );
+};
 
 export default class DropdownList extends Component<{}, any> {
+  static contextType = Context;
+
   constructor(props: any) {
     super(props);
     this.state = { dropdowns: {} };
@@ -12,16 +44,11 @@ export default class DropdownList extends Component<{}, any> {
     axios
       .get("http://localhost:3000/api/layers/all")
       .then((response) => {
-        console.log(response);
         this.setState({ dropdowns: response.data.layers });
       })
       .catch((error) => {
         alert(error);
       });
-  }
-
-  handleChange = (event: any) => {
-    console.log(event);
   }
 
   render() {
@@ -31,21 +58,13 @@ export default class DropdownList extends Component<{}, any> {
         Object.keys(this.state.dropdowns).length > 0 ? (
           Object.keys(this.state.dropdowns).map(
             (name: string, index: number) => (
-              (
-                <div key={index}>
-                  {name}
-                  <Form.Select key={index} onChange={this.handleChange}>
-                    <option value="Random">Random</option>
-                    {this.state.dropdowns[name].map(
-                      (file: any, index: number) => (
-                        <option key={file.path} value={file.path}>
-                          {file.name}
-                        </option>
-                      )
-                    )}
-                  </Form.Select>
-                </div>
-              )
+              <div key={index}>
+                {name}
+                <SelectComponent
+                  index={index}
+                  options={this.state.dropdowns[name]}
+                />
+              </div>
             )
           )
         ) : (
