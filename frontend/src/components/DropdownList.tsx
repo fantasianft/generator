@@ -15,11 +15,6 @@ const SelectComponent = ({ index, options }: ISelectComponent) => {
     setState({ selectedLayers: [...state.selectedLayers, event.target.value] });
   };
 
-  useEffect(() => {
-    // Console log whenever the state changes
-    console.log(state);
-  });
-
   return (
     <Form.Select key={index} onChange={handleChange}>
       <option value="Random">Random</option>
