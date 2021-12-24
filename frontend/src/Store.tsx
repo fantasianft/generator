@@ -3,8 +3,8 @@ import { createContext, useEffect, useState } from "react";
 import { getSelectedLayers } from "./components/DropdownList";
 
 const initalState = {
+  availableLayers: {},
   overrideLayers: {},
-  selectedLayers: {},
 };
 
 export const Context = createContext<any>(initalState);

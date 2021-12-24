@@ -1,4 +1,4 @@
-import { Component, useContext, useEffect } from "react";
+import { Component, useContext } from "react";
 import { Context } from "../Store";
 import { getSelectedLayers } from "./DropdownList";
 import Sketch from "react-p5";
@@ -6,18 +6,14 @@ import Sketch from "react-p5";
 export const Canvas = () => {
   const [state, setState] = useContext(Context);
 
-  useEffect(() => {
-    console.log("useEffect2");
-  }, [state]);
-
-  return <CanvasComponent layers={state.selectedLayers} />;
+  return <CanvasComponent state={state} />;
 };
 
 class CanvasComponent extends Component<any, any> {
   images: any = [];
 
   preload = (p5: any) => {
-    getSelectedLayers(this.props.layers).then((res: any) => {
+    getSelectedLayers(this.props.state.overrideLayers).then((res: any) => {
       const layers = res.data;
       layers.forEach((layer: any) => {
         const imageUrl = `layers/${layer.name}/${layer.selectedElement.filename}`;
