@@ -8,11 +8,17 @@ interface ISelectComponent {
   options: any;
 }
 
+export const getSelectedLayers = (overrideLayers = {}) => {
+  return axios.post("http://localhost:3000/api/layers/create", overrideLayers);
+};
+
 const SelectComponent = ({ index, options }: ISelectComponent) => {
   const [state, setState] = useContext(Context);
 
   const handleChange = (event: any) => {
-    // setState({ selectedLayers: [...state.selectedLayers, event.target.value] });
+    getSelectedLayers(state.overrideLayers).then((res) =>
+      setState({ ...state, selectedLayers: res.data })
+    );
   };
 
   return (
@@ -28,8 +34,6 @@ const SelectComponent = ({ index, options }: ISelectComponent) => {
 };
 
 export default class DropdownList extends Component<{}, any> {
-  static contextType = Context;
-
   constructor(props: any) {
     super(props);
     this.state = { dropdowns: {} };
@@ -39,7 +43,7 @@ export default class DropdownList extends Component<{}, any> {
     axios
       .get("http://localhost:3000/api/layers/all")
       .then((response) => {
-        this.setState({ dropdowns: response.data.layers });
+        this.setState({ dropdowns: response.data });
       })
       .catch((error) => {
         alert(error);
@@ -49,15 +53,14 @@ export default class DropdownList extends Component<{}, any> {
   render() {
     return (
       <div>
-        {this.state.dropdowns !== {} &&
-        Object.keys(this.state.dropdowns).length > 0 ? (
+        {Array.isArray(this.state.dropdowns) ? (
           Object.keys(this.state.dropdowns).map(
-            (name: string, index: number) => (
+            (value: string, index: number) => (
               <div key={index}>
-                {name}
+                {this.state.dropdowns[index].name}
                 <SelectComponent
                   index={index}
-                  options={this.state.dropdowns[name]}
+                  options={this.state.dropdowns[index].elements}
                 />
               </div>
             )

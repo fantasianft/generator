@@ -2,8 +2,16 @@ import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 import * as fs from "fs";
 import junk from "junk";
+import {
+  buildSetup,
+  layersSetup,
+  startCreating,
+  createDna,
+  constructLayerToDna,
+  // @ts-ignore
+} from "../../../dist/main";
 // @ts-ignore
-import { buildSetup, cleanName, startCreating } from "../../../dist/main";
+import { layerConfigurations } from "../../../dist/config";
 
 const { OK } = StatusCodes;
 
@@ -23,25 +31,7 @@ interface LayerImages {
  * @returns
  */
 export async function getAllLayers(req: Request, res: Response) {
-  const layers: LayerImages = {};
-  fs.readdirSync("../layers")
-    .filter(junk.not)
-    .forEach((layerFolder) => {
-      const images = fs
-        .readdirSync(`../layers/${layerFolder}`)
-        .filter(junk.not)
-        .map((i) => ({
-          name: cleanName(i),
-          filename: i,
-          path: `${layerFolder}/${i}`,
-        }));
-
-      console.log(images);
-
-      layers[layerFolder] = images;
-    });
-
-  return res.status(OK).json({ layers });
+  return res.status(OK).json(layersSetup(layerConfigurations[0].layersOrder));
 }
 
 /**
@@ -52,7 +42,12 @@ export async function getAllLayers(req: Request, res: Response) {
  * @returns
  */
 export async function createFromLayers(req: Request, res: Response) {
-  buildSetup();
-  startCreating(req.body);
-  return res.status(OK).json(req.body);
+  const layers = layersSetup(layerConfigurations[0].layersOrder);
+  const overrideLayers = req.body ?? {};
+  const newDna = createDna(layers, overrideLayers);
+  const results = constructLayerToDna(newDna, layers);
+
+  // await buildSetup();
+  // await startCreating(req.body);
+  return res.status(OK).json(results);
 }

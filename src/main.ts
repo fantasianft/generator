@@ -86,7 +86,7 @@ const getElements = (path) =>
       weight: getRarityWeight(i),
     }));
 
-const layersSetup = (layersOrder) => {
+export const layersSetup = (layersOrder) => {
   const layers = layersOrder.map((layerObj, index) => ({
     id: index,
     elements: getElements(`${layersDir}/${layerObj.name}/`),
@@ -225,7 +225,7 @@ const drawElement = (_renderObject, _index, _layersLen, frameNum?: number) => {
   }
 };
 
-const constructLayerToDna = (_dna = "", _layers = []) => {
+export const constructLayerToDna = (_dna = "", _layers = []) => {
   const mappedDnaToLayers = _layers.map((layer, index) => {
     const selectedElement = layer.elements.find(
       (e) => e.id === cleanDna(_dna.split(DNA_DELIMITER)[index])
@@ -291,7 +291,7 @@ const isDnaUnique = (_DnaList = new Set(), _dna = "") => {
   return !_DnaList.has(_filteredDNA);
 };
 
-const createDna = (_layers, _overrideLayers = {}) => {
+export const createDna = (_layers, _overrideLayers = {}) => {
   const randNum = [];
   _layers.forEach((layer) => {
     if (
@@ -376,12 +376,11 @@ const startCreating = async (overrideLayers = {}) => {
     const layers = layersSetup(
       layerConfigurations[layerConfigIndex].layersOrder
     );
+    console.log(layers);
     const maxEditions =
       overrideLayers !== {}
         ? 1
         : layerConfigurations[layerConfigIndex].growEditionSizeTo;
-    console.log(overrideLayers);
-    console.log(maxEditions);
     while (editionCount <= maxEditions) {
       const newDna = createDna(layers, overrideLayers);
       if (isDnaUnique(dnaList, newDna)) {
