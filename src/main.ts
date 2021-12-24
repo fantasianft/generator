@@ -291,9 +291,17 @@ const isDnaUnique = (_DnaList = new Set(), _dna = "") => {
   return !_DnaList.has(_filteredDNA);
 };
 
-const createDna = (_layers) => {
+const createDna = (_layers, _overrideLayers = {}) => {
   const randNum = [];
   _layers.forEach((layer) => {
+    if (
+      layer.name in _overrideLayers &&
+      // @ts-ignore
+      !_overrideLayers[layer.name] === "Random"
+    ) {
+      console.log(layer.name);
+    }
+
     let totalWeight = 0;
     layer.elements.forEach((element) => {
       totalWeight += element.weight;
@@ -346,7 +354,7 @@ function shuffle(array) {
   return array;
 }
 
-const startCreating = async () => {
+const startCreating = async (overrideLayers = {}) => {
   let layerConfigIndex = 0;
   let editionCount = 1;
   let failedCount = 0;
@@ -368,10 +376,14 @@ const startCreating = async () => {
     const layers = layersSetup(
       layerConfigurations[layerConfigIndex].layersOrder
     );
-    while (
-      editionCount <= layerConfigurations[layerConfigIndex].growEditionSizeTo
-    ) {
-      const newDna = createDna(layers);
+    const maxEditions =
+      overrideLayers !== {}
+        ? 1
+        : layerConfigurations[layerConfigIndex].growEditionSizeTo;
+    console.log(overrideLayers);
+    console.log(maxEditions);
+    while (editionCount <= maxEditions) {
+      const newDna = createDna(layers, overrideLayers);
       if (isDnaUnique(dnaList, newDna)) {
         const results = constructLayerToDna(newDna, layers);
         const loadedElements = [];
@@ -381,7 +393,7 @@ const startCreating = async () => {
         });
 
         // buffers contains all frames of the animation
-        let buffers: ArrayBuffer[] = [];
+        const buffers: ArrayBuffer[] = [];
 
         if (gif.export) {
           hashlipsGiffer = new HashLipsGiffer(

@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import * as fs from "fs";
 import junk from "junk";
 // @ts-ignore
-import { cleanName } from "../../../dist/main";
+import { buildSetup, cleanName, startCreating } from "../../../dist/main";
 
 const { OK } = StatusCodes;
 
@@ -42,4 +42,17 @@ export async function getAllLayers(req: Request, res: Response) {
     });
 
   return res.status(OK).json({ layers });
+}
+
+/**
+ * Create from layers.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function createFromLayers(req: Request, res: Response) {
+  buildSetup();
+  startCreating(req.body);
+  return res.status(OK).json(req.body);
 }

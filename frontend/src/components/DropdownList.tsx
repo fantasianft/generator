@@ -12,7 +12,7 @@ const SelectComponent = ({ index, options }: ISelectComponent) => {
   const [state, setState] = useContext(Context);
 
   const handleChange = (event: any) => {
-    setState({ selectedLayers: [...state.selectedLayers, event.target.value] });
+    // setState({ selectedLayers: [...state.selectedLayers, event.target.value] });
   };
 
   return (
