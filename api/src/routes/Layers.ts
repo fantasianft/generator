@@ -1,7 +1,6 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 import * as fs from "fs";
-import junk from "junk";
 import {
   buildSetup,
   layersSetup,

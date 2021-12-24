@@ -186,13 +186,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/junk@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@types/junk/-/junk-3.0.0.tgz#79985e19408a6454947586db77176b3179c39133"
-  integrity sha512-qVdOQ59DM9zs/FetWhDsErjoMM82oL12HZ1klCpdSKDFoxYgUYP8PfEWeHvA+ueygp2TFEWhkVD2051wHg37wA==
-  dependencies:
-    junk "*"
-
 "@types/mime@^1":
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-1.3.2.tgz#93e25bf9ee75fe0fd80b594bc4feb0e862111b5a"
@@ -1467,16 +1460,6 @@ jsonfile@^6.0.1, jsonfile@^6.1.0:
     universalify "^2.0.0"
   optionalDependencies:
     graceful-fs "^4.1.6"
-
-junk@*:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/junk/-/junk-4.0.0.tgz#9b1104ddf5281cd24ffa3c8a7443d19ce192b37f"
-  integrity sha512-ojtSU++zLJ3jQG9bAYjg94w+/DOJtRyD7nPaerMFrBhmdVmiV5/exYH5t4uHga4G/95nT6hr1OJoKIFbYbrW5w==
-
-junk@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/junk/-/junk-3.1.0.tgz#31499098d902b7e98c5d9b9c80f43457a88abfa1"
-  integrity sha512-pBxcB3LFc8QVgdggvZWyeys+hnrNWg4OcZIU/1X59k5jQdLBlCsYGRQaz234SqoRLTCgMH00fY0xRJH+F9METQ==
 
 keyv@^3.0.0:
   version "3.1.0"
