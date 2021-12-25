@@ -31,6 +31,7 @@ class CanvasComponent extends Component<any, any> {
   };
 
   draw = (p5: any) => {
+    this.p5?.clear();
     this.images.forEach((imageLoaded: any) => p5.image(imageLoaded, 0, 0));
   };
 

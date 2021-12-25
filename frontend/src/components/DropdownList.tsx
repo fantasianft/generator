@@ -23,7 +23,16 @@ export const LayerDropdownsComponent = () => {
   const handleChange = (event: any, layerIndex: number) => {
     let overrideLayer = state?.availableLayers[layerIndex];
     overrideLayer.overrideElement = overrideLayer.elements[event.target.value];
-    state?.overrideLayers.push(overrideLayer);
+
+    state.overrideLayers = state.overrideLayers.filter(
+      (item: any) => item.name !== overrideLayer.name
+    );
+
+    if (event.target.value !== "Random") {
+      state.overrideLayers.push(overrideLayer);
+    }
+
+    console.log(state.overrideLayers);
 
     setState({ ...state });
   };
