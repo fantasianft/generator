@@ -1,10 +1,8 @@
-import axios from "axios";
-import { createContext, useEffect, useState } from "react";
-import { getSelectedLayers } from "./components/DropdownList";
+import { createContext, useState } from "react";
 
 const initalState = {
-  availableLayers: {},
-  overrideLayers: {},
+  availableLayers: [],
+  overrideLayers: [],
 };
 
 export const Context = createContext<any>(initalState);

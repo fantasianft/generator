@@ -42,7 +42,7 @@ export async function getAllLayers(req: Request, res: Response) {
  */
 export async function createFromLayers(req: Request, res: Response) {
   const layers = layersSetup(layerConfigurations[0].layersOrder);
-  const overrideLayers = req.body ?? {};
+  const overrideLayers = req.body ?? [];
   const newDna = createDna(layers, overrideLayers);
   const results = constructLayerToDna(newDna, layers);
 

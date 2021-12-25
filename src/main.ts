@@ -291,29 +291,30 @@ const isDnaUnique = (_DnaList = new Set(), _dna = "") => {
   return !_DnaList.has(_filteredDNA);
 };
 
-export const createDna = (_layers, _overrideLayers = {}) => {
+export const createDna = (_layers, _overrideLayers = []) => {
   const randNum = [];
   _layers.forEach((layer) => {
-    if (
-      layer.name in _overrideLayers &&
-      // @ts-ignore
-      !_overrideLayers[layer.name] === "Random"
-    ) {
-      console.log(layer.name);
+    let totalWeight = 0;
+    const overrideLayer = _overrideLayers.filter((x) => layer.name === x.name);
+    let elements = [];
+    if (overrideLayer.length > 0) {
+      elements.push(overrideLayer[0].overrideElement);
+    } else {
+      elements = layer.elements;
     }
 
-    let totalWeight = 0;
-    layer.elements.forEach((element) => {
+    elements.forEach((element) => {
       totalWeight += element.weight;
     });
+
     // number between 0 - totalWeight
     let random = Math.floor(Math.random() * totalWeight);
-    for (let i = 0; i < layer.elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
       // subtract the current weight from the random weight until we reach a sub zero value.
-      random -= layer.elements[i].weight;
+      random -= elements[i].weight;
       if (random < 0) {
         return randNum.push(
-          `${layer.elements[i].id}:${layer.elements[i].filename}${
+          `${elements[i].id}:${elements[i].filename}${
             layer.bypassDNA ? "?bypassDNA=true" : ""
           }`
         );
@@ -354,7 +355,7 @@ function shuffle(array) {
   return array;
 }
 
-const startCreating = async (overrideLayers = {}) => {
+const startCreating = async () => {
   let layerConfigIndex = 0;
   let editionCount = 1;
   let failedCount = 0;
@@ -377,12 +378,9 @@ const startCreating = async (overrideLayers = {}) => {
       layerConfigurations[layerConfigIndex].layersOrder
     );
     console.log(layers);
-    const maxEditions =
-      overrideLayers !== {}
-        ? 1
-        : layerConfigurations[layerConfigIndex].growEditionSizeTo;
+    const maxEditions = layerConfigurations[layerConfigIndex].growEditionSizeTo;
     while (editionCount <= maxEditions) {
-      const newDna = createDna(layers, overrideLayers);
+      const newDna = createDna(layers);
       if (isDnaUnique(dnaList, newDna)) {
         const results = constructLayerToDna(newDna, layers);
         const loadedElements = [];

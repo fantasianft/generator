@@ -1,4 +1,4 @@
-import { Component, useContext, useEffect } from "react";
+import { useContext } from "react";
 import axios from "axios";
 import { Form } from "react-bootstrap";
 import { Context } from "../Store";
@@ -9,7 +9,7 @@ export const getSelectedLayers = (overrideLayers = {}) => {
 
 export const LayerDropdownsComponent = () => {
   const [state, setState] = useContext(Context);
-  if (!Array.isArray(state.availableLayers)) {
+  if (state.availableLayers.length === 0) {
     axios
       .get("http://localhost:3000/api/layers/all")
       .then((response) => {
@@ -20,8 +20,12 @@ export const LayerDropdownsComponent = () => {
       });
   }
 
-  const handleChange = (event: any) => {
-    console.log(state);
+  const handleChange = (event: any, layerIndex: number) => {
+    let overrideLayer = state?.availableLayers[layerIndex];
+    overrideLayer.overrideElement = overrideLayer.elements[event.target.value];
+    state?.overrideLayers.push(overrideLayer);
+
+    setState({ ...state });
   };
 
   return (
@@ -31,11 +35,11 @@ export const LayerDropdownsComponent = () => {
           (value: string, index: number) => (
             <div key={index}>
               {state?.availableLayers[index].name}
-              <Form.Select key={index} onChange={handleChange}>
+              <Form.Select key={index} onChange={(e) => handleChange(e, index)}>
                 <option value="Random">Random</option>
                 {state?.availableLayers[index]?.elements.map(
                   (file: any, index: number) => (
-                    <option key={file.path} value={file.path}>
+                    <option key={file.id} value={index}>
                       {file.name}
                     </option>
                   )
