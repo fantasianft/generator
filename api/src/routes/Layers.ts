@@ -30,7 +30,7 @@ interface LayerImages {
  * @returns
  */
 export async function getAllLayers(req: Request, res: Response) {
-  return res.status(OK).json(layersSetup(layerConfigurations[0].layersOrder));
+  return res.status(OK).json(layersSetup(layerConfigurations[0].layersOrder, 'public/layers'));
 }
 
 /**

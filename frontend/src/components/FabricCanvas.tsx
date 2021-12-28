@@ -39,7 +39,7 @@ class FabricCanvas extends React.Component<any, any> {
 
       this.theCanvas.remove(to_remove);
 
-      if (next.the_type === "bg") {
+      if (next.the_type === "Background") {
         this.theCanvas.setBackgroundImage(next);
         this.theCanvas.renderAll();
         return;

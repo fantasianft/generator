@@ -1,16 +1,10 @@
 import React, { Component } from "react";
 import FabricCanvas from "./components/FabricCanvas";
 import TemplateList from "./components/TemplateList";
-import {
-  bglist,
-  facelist,
-  eyeslist,
-  faciallist,
-  hairlist,
-} from "./images/templateList";
-import { Col, Tabs, Tab, Button } from "react-bootstrap";
+import { Col, Tabs, Tab } from "react-bootstrap";
 import "./App.css";
 import { fabric } from "fabric";
+import axios from "axios";
 
 class App extends Component<any, any> {
   constructor(props: any) {
@@ -18,7 +12,14 @@ class App extends Component<any, any> {
 
     this.state = {
       activeProperty: null,
+      layers: [],
     };
+  }
+
+  componentDidMount() {
+    axios
+      .get("http://localhost:3000/api/layers/all")
+      .then((res) => this.setState({ layers: res.data }));
   }
 
   addToCanvas = (imgElement: any, property_type: any, z_Index: any) => {
@@ -40,46 +41,33 @@ class App extends Component<any, any> {
           <div className="row">
             <Col md={6}>
               <Tabs defaultActiveKey={1} id="main_tabs">
-                <Tab eventKey={1} title="Faces">
-                  <TemplateList
-                    data={facelist}
-                    property_type="face"
-                    zIndex={0}
-                    addtocanvas={this.addToCanvas}
-                  />
-                </Tab>
-                <Tab eventKey={2} title="Eyes">
-                  <TemplateList
-                    data={eyeslist}
-                    property_type="eyes"
-                    zIndex={2}
-                    addtocanvas={this.addToCanvas}
-                  />
-                </Tab>
-                <Tab eventKey={3} title="Beard">
-                  <TemplateList
-                    data={faciallist}
-                    property_type="beard"
-                    zIndex={2}
-                    addtocanvas={this.addToCanvas}
-                  />
-                </Tab>
-                <Tab eventKey={4} title="Hair">
-                  <TemplateList
-                    data={hairlist}
-                    property_type="hair"
-                    zIndex={2}
-                    addtocanvas={this.addToCanvas}
-                  />
-                </Tab>
-                <Tab eventKey={5} title="Background">
-                  <TemplateList
-                    data={bglist}
-                    property_type="bg"
-                    zIndex={-9999}
-                    addtocanvas={this.addToCanvas}
-                  />
-                </Tab>
+                {Array.isArray(this.state.layers) ? (
+                  Object.keys(this.state.layers).map(
+                    (value: string, index: number) => (
+                      <Tab
+                        key={value}
+                        eventKey={index + 1}
+                        title={this.state.layers[index].name}
+                      >
+                        <TemplateList
+                          data={this.state.layers[index].elements.map(
+                            (element: any) =>
+                              "http://localhost:3000/" + escape(element.path)
+                          )}
+                          property_type={this.state.layers[index].name}
+                          zIndex={
+                            this.state.layers[index].name === "Background"
+                              ? -9999
+                              : index
+                          }
+                          addtocanvas={this.addToCanvas}
+                        />
+                      </Tab>
+                    )
+                  )
+                ) : (
+                  <p>Loading...</p>
+                )}
               </Tabs>
             </Col>
 

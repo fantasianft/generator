@@ -25,7 +25,7 @@ import { HashLipsGiffer } from "./modules/HashlipsGiffer.js";
 const basePath = process.cwd();
 
 const buildDir = `${basePath}/build`;
-const layersDir = `${basePath}/layers`;
+const layersDir = `${basePath}/api/public/layers`;
 
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
@@ -86,10 +86,10 @@ const getElements = (path) =>
       weight: getRarityWeight(i),
     }));
 
-export const layersSetup = (layersOrder) => {
+export const layersSetup = (layersOrder, dir: string = layersDir) => {
   const layers = layersOrder.map((layerObj, index) => ({
     id: index,
-    elements: getElements(`${layersDir}/${layerObj.name}/`),
+    elements: getElements(`${dir}/${layerObj.name}/`),
     name:
       layerObj.options?.displayName !== undefined
         ? layerObj.options?.displayName
@@ -377,7 +377,6 @@ const startCreating = async () => {
     const layers = layersSetup(
       layerConfigurations[layerConfigIndex].layersOrder
     );
-    console.log(layers);
     const maxEditions = layerConfigurations[layerConfigIndex].growEditionSizeTo;
     while (editionCount <= maxEditions) {
       const newDna = createDna(layers);
