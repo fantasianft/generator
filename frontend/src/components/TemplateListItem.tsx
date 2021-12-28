@@ -12,7 +12,6 @@ export default class TemplateListItem extends React.Component<any, any> {
   };
 
   render() {
-    console.log(this.props.url);
     return (
       <Col xs={6} md={4}>
         <a href="#" className="thumbnail" onClick={this.localAddToCanvas}>
