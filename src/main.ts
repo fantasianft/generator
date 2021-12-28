@@ -25,7 +25,7 @@ import { HashLipsGiffer } from "./modules/HashlipsGiffer.js";
 const basePath = process.cwd();
 
 const buildDir = `${basePath}/build`;
-const layersDir = `${basePath}/layers`;
+const layersDir = `${basePath}/api/public/layers`;
 
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
@@ -68,7 +68,7 @@ const cleanDna = (_str) => {
   return dna;
 };
 
-const cleanName = (_str) => {
+export const cleanName = (_str) => {
   const nameWithoutExtension = _str.slice(0, -4);
   const nameWithoutWeight = nameWithoutExtension.split(rarityDelimiter).shift();
   return nameWithoutWeight;
@@ -86,10 +86,10 @@ const getElements = (path) =>
       weight: getRarityWeight(i),
     }));
 
-const layersSetup = (layersOrder) => {
+export const layersSetup = (layersOrder, dir: string = layersDir) => {
   const layers = layersOrder.map((layerObj, index) => ({
     id: index,
-    elements: getElements(`${layersDir}/${layerObj.name}/`),
+    elements: getElements(`${dir}/${layerObj.name}/`),
     name:
       layerObj.options?.displayName !== undefined
         ? layerObj.options?.displayName
@@ -225,7 +225,7 @@ const drawElement = (_renderObject, _index, _layersLen, frameNum?: number) => {
   }
 };
 
-const constructLayerToDna = (_dna = "", _layers = []) => {
+export const constructLayerToDna = (_dna = "", _layers = []) => {
   const mappedDnaToLayers = _layers.map((layer, index) => {
     const selectedElement = layer.elements.find(
       (e) => e.id === cleanDna(_dna.split(DNA_DELIMITER)[index])
@@ -291,21 +291,30 @@ const isDnaUnique = (_DnaList = new Set(), _dna = "") => {
   return !_DnaList.has(_filteredDNA);
 };
 
-const createDna = (_layers) => {
+export const createDna = (_layers, _overrideLayers = []) => {
   const randNum = [];
   _layers.forEach((layer) => {
     let totalWeight = 0;
-    layer.elements.forEach((element) => {
+    const overrideLayer = _overrideLayers.filter((x) => layer.name === x.name);
+    let elements = [];
+    if (overrideLayer.length > 0) {
+      elements.push(overrideLayer[0].overrideElement);
+    } else {
+      elements = layer.elements;
+    }
+
+    elements.forEach((element) => {
       totalWeight += element.weight;
     });
+
     // number between 0 - totalWeight
     let random = Math.floor(Math.random() * totalWeight);
-    for (let i = 0; i < layer.elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
       // subtract the current weight from the random weight until we reach a sub zero value.
-      random -= layer.elements[i].weight;
+      random -= elements[i].weight;
       if (random < 0) {
         return randNum.push(
-          `${layer.elements[i].id}:${layer.elements[i].filename}${
+          `${elements[i].id}:${elements[i].filename}${
             layer.bypassDNA ? "?bypassDNA=true" : ""
           }`
         );
@@ -368,9 +377,8 @@ const startCreating = async () => {
     const layers = layersSetup(
       layerConfigurations[layerConfigIndex].layersOrder
     );
-    while (
-      editionCount <= layerConfigurations[layerConfigIndex].growEditionSizeTo
-    ) {
+    const maxEditions = layerConfigurations[layerConfigIndex].growEditionSizeTo;
+    while (editionCount <= maxEditions) {
       const newDna = createDna(layers);
       if (isDnaUnique(dnaList, newDna)) {
         const results = constructLayerToDna(newDna, layers);
@@ -381,7 +389,7 @@ const startCreating = async () => {
         });
 
         // buffers contains all frames of the animation
-        let buffers: ArrayBuffer[] = [];
+        const buffers: ArrayBuffer[] = [];
 
         if (gif.export) {
           hashlipsGiffer = new HashLipsGiffer(
